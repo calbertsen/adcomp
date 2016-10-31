@@ -1,3 +1,10 @@
+## knitr global options
+knitr::opts_chunk$set(fig.height=3.5) ## half of default (both for html and pdf output)
+knitr::opts_chunk$set(fig.align="center")
+if(!identical( knitr::opts_knit$get('rmarkdown.pandoc.to') , "latex" ) ) {
+    knitr::opts_chunk$set(dev="svg") ## Use svg rather than png for html output
+}
+
 ## Variable '.doxygen'
 ##   FALSE: Use pandoc to convert md -> html  (default)
 ##   TRUE : Use doxygen to convert md -> html
@@ -56,7 +63,7 @@ doxy_markdown_tweaks <- function(file) {
 ## * Directed graph of successive conditional distributions
 plotGraph <- function(h, DAG=TRUE, group = function(x)(x-1)%%nrow,
                       nrow=1, color="black", fillcolor=NULL,
-                      shape=NULL, debug=FALSE, ... ) {
+                      shape="circle", debug=FALSE, ... ) {
     if(is.null(labels <- rownames(h)))
         if(is.null(labels <- colnames(h)))
             labels <- paste0("X", 1:nrow(h))
@@ -105,6 +112,7 @@ plotGraph <- function(h, DAG=TRUE, group = function(x)(x-1)%%nrow,
                if(!is.null(color))     paste0(" color=",     color)     else NULL,
                if(!is.null(fillcolor)) paste0(" fillcolor=", fillcolor, " style=filled") else NULL,
                if(!is.null(shape))     paste0(" shape=",     shape)     else NULL,
+               " fixedsize=true",
                "]"),
         if(!is.null(group))
             sapply(spl, function(x) paste("{rank=same",  paste(x, collapse=", ") , "}") )
@@ -117,5 +125,33 @@ plotGraph <- function(h, DAG=TRUE, group = function(x)(x-1)%%nrow,
     }
     graph <- paste(graph, collapse="\n")
     if(debug)return(graph)
-    DiagrammeR::grViz(graph, ...)
+    dotfile <- tempfile(fileext=".dot")
+    svgfile <- tempfile(fileext=".svg")
+    cat(graph, file=dotfile)
+    cmd <- paste("dot", "-Tsvg", dotfile, ">", svgfile)
+    system(cmd)
+    class(svgfile) <- "svgfile"
+    svgfile
+}
+
+print.svgfile <- function(x) {
+    browseURL(x)
+}
+
+knit_print.svgfile <- function(x,...,options=NULL) {
+    filename <- knitr::fig_chunk(options$label, ext=options$fig.ext)
+    ## print(options)
+    ## print(filename)
+    ## print(knitr::opts_knit$get('rmarkdown.pandoc.to'))
+    if(!file.exists(options$fig.path))
+        dir.create(options$fig.path, recursive=TRUE)
+    if(options$dev == "pdf") {
+        rsvg::rsvg_pdf(x, filename)
+    } else if(options$dev == "png") {
+        rsvg::rsvg_png(x, filename)
+    } else if(options$dev == "svg") {
+        file.copy(x, filename)
+    }
+    else stop("Device must be 'png', 'svg' or 'pdf'")
+    knitr::include_graphics(filename)
 }
