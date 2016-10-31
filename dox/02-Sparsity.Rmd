@@ -50,7 +50,7 @@ image(hh)
 
 This is the **sparsity pattern** of the model.
 
-> The sparsity pattern visualizes the conditional independence structure of the model.
+> The sparsity pattern visualizes the conditional independence structure of the random effects in the model.
 
 ### Node removal properties
 
@@ -68,7 +68,6 @@ Important probabilistic properties can be deduced directly from the graph. This 
 	plotGraph(hm, DAG=FALSE, nrow=1)
     ```
 
-> Important message for large models:
 > Conditioning preserves sparseness. Marginalizing tend to destroy sparseness by adding more edges to the graph.
 
 ### Directed acyclic graph
@@ -81,7 +80,6 @@ plotGraph(h, DAG=TRUE, group=function(x)x==2|x==3)
 
 The graph shows dependencies of any specific node *given past nodes*. The edge from $X_1$ to $X_3$ was not in the original (undirected) graph. This is a so-called **fill-in**.
 
-> Important message:
 > Order matters. The DAG is different from the conditional independence graph.
 
 ### The effect of adding data
@@ -100,7 +98,6 @@ plotGraph(hm, DAG=FALSE, nrow=1)
 
 which is the same graph as was previously found by integrating $X_4$ out of the joint distribution.
 
-> Important for large models:
 > Data nodes destroy sparsity the same way as marginalization. To avoid this, try to associate each data point with a single random effect.
 
 ## The theta logistic example
