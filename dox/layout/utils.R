@@ -1,5 +1,5 @@
 ## knitr global options
-knitr::opts_chunk$set(fig.height=3.5) ## half of default (both for html and pdf output)
+knitr::opts_chunk$set(fig.width=3.5, fig.height=3.5) ## half of default (both for html and pdf output)
 knitr::opts_chunk$set(fig.align="center")
 if(!identical( knitr::opts_knit$get('rmarkdown.pandoc.to') , "latex" ) ) {
     knitr::opts_chunk$set(dev="svg") ## Use svg rather than png for html output
