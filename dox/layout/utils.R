@@ -61,7 +61,7 @@ doxy_markdown_tweaks <- function(file) {
 ## plot graph of hessian as either
 ## * Undirected conditinal independence graph
 ## * Directed graph of successive conditional distributions
-plotGraph <- function(h, DAG=TRUE, group = function(x)(x-1)%%nrow,
+plotGraph <- function(h, DAG=TRUE, fill_in=DAG, group = function(x)(x-1)%%nrow,
                       nrow=1, color="black", fillcolor=NULL,
                       shape="circle", debug=FALSE, ... ) {
     if(is.null(labels <- rownames(h)))
@@ -77,7 +77,7 @@ plotGraph <- function(h, DAG=TRUE, group = function(x)(x-1)%%nrow,
     }
     labels <- sapply(labels, sub)
     ## Draw nodes one-by-one in natural order
-    dag_edges <- function(h) {
+    fill_in_edges <- function(h) {
         h <- as(h, "dsCMatrix")
         h@x[] <- 0
         diag(h) <- 1
@@ -100,8 +100,8 @@ plotGraph <- function(h, DAG=TRUE, group = function(x)(x-1)%%nrow,
         e <- which(triu(h)>0, arr=TRUE)
         e
     }
-    if(DAG)
-        e <- dag_edges(h)
+    if(fill_in)
+        e <- fill_in_edges(h)
     else
         e <- edges(h)
     if(!is.null(group))
